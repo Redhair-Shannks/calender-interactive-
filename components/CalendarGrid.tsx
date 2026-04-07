@@ -10,46 +10,79 @@ interface CalendarGridProps {
   onDateClick: (day: Date) => void;
 }
 
+// Holiday dates for visual markers
+const holidays: Record<string, string> = {
+  "1-1": "🎆 New Year",
+  "2-14": "❤️ Valentine's",
+  "3-17": "🍀 St. Patrick's",
+  "7-4": "🇺🇸 Independence",
+  "10-31": "🎃 Halloween",
+  "12-25": "🎄 Christmas",
+};
+
 export function CalendarGrid({ currentMonth, startDate, endDate, onDateClick }: CalendarGridProps) {
   const days = generateCalendarDays(currentMonth);
   const weekdays = getWeekdayHeaders();
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 md:p-8">
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-400 mb-4">
+      <div className="grid grid-cols-7 gap-1.5 sm:gap-2 md:gap-3 text-center text-[10px] sm:text-xs font-bold text-gray-500 mb-4 sm:mb-6 uppercase tracking-widest">
         {weekdays.map((day) => (
-          <div key={day} className="py-2">{day}</div>
+          <motion.div 
+            key={day} 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="py-2 sm:py-3"
+          >
+            {day}
+          </motion.div>
         ))}
       </div>
 
       {/* Date grid */}
-      <div className="grid grid-cols-7 gap-2">
-        {days.map((day) => {
+      <div className="grid grid-cols-7 gap-1.5 sm:gap-2 md:gap-3">
+        {days.map((day, index) => {
           const isCurrentMonthDay = isSameMonth(day, currentMonth);
           const isStart = startDate && isSameDay(day, startDate);
           const isEnd = endDate && isSameDay(day, endDate);
           const inRange = isInRange(day, startDate, endDate);
           const today = isSameDay(day, new Date());
+          const dateKey = `${day.getMonth() + 1}-${day.getDate()}`;
+          const isHoliday = holidays[dateKey];
 
           return (
             <motion.button
               key={day.toISOString()}
               onClick={() => onDateClick(day)}
-              whileHover={{ scale: 1.08, y: -2 }}
-              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2, delay: index * 0.01 }}
+              whileHover={{ scale: isCurrentMonthDay ? 1.1 : 1, y: isCurrentMonthDay ? -4 : 0 }}
+              whileTap={{ scale: 0.92 }}
               className={cn(
-                "aspect-square flex items-center justify-center rounded-2xl text-sm font-medium transition-all",
-                !isCurrentMonthDay && "text-gray-300",
-                today && "ring-2 ring-amber-400 bg-amber-50",
+                "aspect-square flex flex-col items-center justify-center rounded-lg sm:rounded-xl md:rounded-2xl text-[11px] sm:text-sm font-semibold transition-all duration-300 relative overflow-hidden",
+                !isCurrentMonthDay && "text-gray-300 cursor-default",
+                isCurrentMonthDay && "cursor-pointer",
+                today && !isStart && !isEnd && "ring-2 ring-amber-400 bg-gradient-to-br from-amber-50 to-amber-100 text-amber-900",
                 isStart || isEnd
-                  ? "bg-blue-600 text-white shadow-md"
+                  ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg"
                   : inRange
-                  ? "bg-blue-100 text-blue-700"
-                  : "hover:bg-gray-100",
+                  ? "bg-gradient-to-br from-blue-100 to-blue-50 text-blue-700"
+                  : isCurrentMonthDay && "hover:bg-gray-50 text-gray-700",
               )}
             >
-              {format(day, "d")}
+              <span className="text-xs sm:text-sm">{format(day, "d")}</span>
+              {isHoliday && (
+                <motion.span
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-[7px] sm:text-[9px] leading-none mt-0.5 sm:mt-1"
+                >
+                  {isHoliday.split(" ")[0]}
+                </motion.span>
+              )}
             </motion.button>
           );
         })}

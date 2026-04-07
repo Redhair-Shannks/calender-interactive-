@@ -97,65 +97,102 @@ export default function InteractiveCalendar() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
-      <Card className="overflow-hidden border-0 shadow-2xl rounded-3xl bg-white">
-        <HeroImage
-          currentMonth={currentMonth}
-          imageUrl={currentImage}
-          monthIndex={monthIndex}
-          onUpload={handleCustomImageUpload}
-          onReset={handleResetImage}
-        />
+    <div className="w-full px-3 sm:px-4 py-8 sm:py-12 md:py-16">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="max-w-7xl mx-auto"
+      >
+        <Card className="overflow-hidden border-0 shadow-2xl rounded-2xl sm:rounded-3xl bg-white backdrop-blur-xl">
+          <HeroImage
+            currentMonth={currentMonth}
+            imageUrl={currentImage}
+            monthIndex={monthIndex}
+            onUpload={handleCustomImageUpload}
+            onReset={handleResetImage}
+          />
 
-        <div className="flex items-center justify-between px-8 py-5 bg-white border-b">
-          <Button variant="ghost" size="icon" onClick={prevMonth}>
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <h2 className="text-2xl font-semibold text-gray-800">
-            {format(currentMonth, "MMMM yyyy")}
-          </h2>
-          <Button variant="ghost" size="icon" onClick={nextMonth}>
-            <ChevronRight className="h-5 w-5" />
-          </Button>
-        </div>
-
-        <div className="grid lg:grid-cols-12">
-          <div className="lg:col-span-4 p-6 lg:border-r border-gray-100">
-            <NotesPanel startDate={startDate} endDate={endDate} monthIndex={monthIndex} />
-          </div>
-
-          <div className="lg:col-span-8">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentMonth.toISOString()}
-                variants={pageVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.4, ease: "easeInOut" }}
+          <div className="flex items-center justify-between px-4 sm:px-8 py-5 sm:py-7 bg-gradient-to-r from-white to-blue-50/30 border-b border-gray-100">
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={prevMonth}
+                className="text-gray-600 hover:text-blue-600 transition-colors h-9 w-9 sm:h-10 sm:w-10"
               >
-                <CalendarGrid
-                  currentMonth={currentMonth}
-                  startDate={startDate}
-                  endDate={endDate}
-                  onDateClick={handleDateClick}
-                />
-              </motion.div>
-            </AnimatePresence>
-
-            {startDate && (
-              <div className="px-8 pb-8 flex items-center justify-between">
-                <div className="text-sm font-medium text-blue-600 bg-blue-50 px-5 py-2 rounded-3xl">
-                  {formatDateRange(startDate, endDate)}
-                </div>
-                <Button variant="ghost" onClick={clearSelection} className="text-gray-400 hover:text-red-500">
-                  Clear selection
-                </Button>
-              </div>
-            )}
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+              </Button>
+            </motion.div>
+            <div className="text-center">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                {format(currentMonth, "MMMM")}
+              </h2>
+              <p className="text-[10px] sm:text-xs text-gray-500 text-center tracking-widest mt-1">
+                {format(currentMonth, "yyyy")}
+              </p>
+            </div>
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={nextMonth}
+                className="text-gray-600 hover:text-blue-600 transition-colors h-9 w-9 sm:h-10 sm:w-10"
+              >
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+              </Button>
+            </motion.div>
           </div>
-        </div>
-      </Card>
+
+          <div className="grid lg:grid-cols-12">
+            <div className="lg:col-span-4 p-4 sm:p-6 md:p-8 lg:border-r border-gray-100 order-2 lg:order-1">
+              <NotesPanel startDate={startDate} endDate={endDate} monthIndex={monthIndex} />
+            </div>
+
+            <div className="lg:col-span-8 order-1 lg:order-2">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentMonth.toISOString()}
+                  variants={pageVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                >
+                  <CalendarGrid
+                    currentMonth={currentMonth}
+                    startDate={startDate}
+                    endDate={endDate}
+                    onDateClick={handleDateClick}
+                  />
+                </motion.div>
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {startDate && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4"
+                  >
+                    <div className="text-xs sm:text-sm font-semibold text-blue-700 bg-gradient-to-r from-blue-50 to-blue-100 px-4 sm:px-6 py-2 sm:py-3 rounded-full border border-blue-200 flex-1 text-center sm:text-left">
+                      ✨ {formatDateRange(startDate, endDate)}
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      onClick={clearSelection} 
+                      className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all rounded-full text-xs sm:text-sm"
+                    >
+                      Clear
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
     </div>
   );
 }
