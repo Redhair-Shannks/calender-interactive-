@@ -81,6 +81,10 @@
   --sidebar-accent-foreground: oklch(0.15 0 0);
   --sidebar-border: oklch(0.92 0 0);
   --sidebar-ring: oklch(0.35 0.15 250);
+  
+  /* Paper texture for calendar body (light mode) */
+  --paper-bg: #fafaf8;
+  --paper-lines: rgba(0, 0, 0, 0.03);
 }
 
 .dark {
@@ -115,6 +119,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  
+  --paper-bg: #111113;
+  --paper-lines: rgba(255, 255, 255, 0.02);
 }
 
 @layer base {
@@ -129,45 +136,49 @@
   }
 }
 
+/* ── Paper texture on the calendar body ── */
+.calendar-paper {
+  background-color: var(--paper-bg);
+  /* Subtle ruled-paper lines at 28px intervals */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 27px,
+    var(--paper-lines) 27px,
+    var(--paper-lines) 28px
+  );
+}
+
+/* ── Reduced motion fallback ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @layer utilities {
   @keyframes shimmer {
-    0% {
-      background-position: -1000px 0;
-    }
-    100% {
-      background-position: 1000px 0;
-    }
+    0%   { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
   }
 
   @keyframes slideInFromTop {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes slideInFromLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0); }
   }
 
   @keyframes pulse-glow {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.8;
-    }
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.75; }
   }
 
   .animate-shimmer {
@@ -175,17 +186,9 @@
     background-size: 1000px 100%;
   }
 
-  .animate-slide-in-top {
-    animation: slideInFromTop 0.5s ease-out;
-  }
-
-  .animate-slide-in-left {
-    animation: slideInFromLeft 0.5s ease-out;
-  }
-
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
+  .animate-slide-in-top  { animation: slideInFromTop  0.5s ease-out; }
+  .animate-slide-in-left { animation: slideInFromLeft 0.5s ease-out; }
+  .animate-pulse-glow    { animation: pulse-glow 2s ease-in-out infinite; }
 
   .glass-morphism {
     @apply bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl;
@@ -201,5 +204,3 @@
     .card { box-shadow: none !important; border: 1px solid #ddd !important; }
   }
 }
-
-

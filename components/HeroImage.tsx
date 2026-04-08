@@ -1,5 +1,4 @@
 "use client";
-
 import { format } from "date-fns";
 import { Upload, RotateCcw, ImageIcon, Link as LinkIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,190 +13,165 @@ interface HeroImageProps {
   onReset: (monthIndex: number) => void;
 }
 
+const MONTH_COLORS: Record<number, string> = {
+  0: "#1e40af", // Jan — deep blue
+  1: "#be185d", // Feb — rose
+  2: "#15803d", // Mar — green
+  3: "#b45309", // Apr — amber
+  4: "#9333ea", // May — purple
+  5: "#0f766e", // Jun — teal
+  6: "#dc2626", // Jul — red
+  7: "#1d4ed8", // Aug — blue
+  8: "#c2410c", // Sep — orange
+  9: "#6d28d9", // Oct — violet
+  10: "#7c2d12", // Nov — brown
+  11: "#1e3a5f", // Dec — midnight
+};
+
 export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onReset }: HeroImageProps) {
   const monthName = format(currentMonth, "MMMM");
   const year = format(currentMonth, "yyyy");
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const accentColor = MONTH_COLORS[monthIndex] ?? "#1e40af";
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInput, setUrlInput] = useState("");
+  const [imgKey, setImgKey] = useState(0);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const dataUrl = ev.target?.result as string;
-      onUpload(monthIndex, dataUrl);
+      onUpload(monthIndex, ev.target?.result as string);
+      setImgKey((k) => k + 1);
     };
     reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   const handleUrlApply = () => {
     const trimmed = urlInput.trim();
     if (trimmed) {
-      onUpload(monthIndex, trimmed);   // URL is saved exactly like uploaded images
+      onUpload(monthIndex, trimmed);
       setUrlInput("");
       setShowUrlInput(false);
+      setImgKey((k) => k + 1);
     }
   };
 
   return (
-    <div className="group relative h-56 sm:h-72 md:h-96 w-full overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
+    <div className="relative h-52 sm:h-72 md:h-96 w-full overflow-hidden group">
+      {/* Hero image — Ken Burns slow zoom on mount + re-render key */}
       <motion.img
+        key={`${imageUrl}-${imgKey}`}
         src={imageUrl}
-        alt={`${monthName} hero`}
-        initial={{ scale: 1 }}
-        whileHover={{ scale: 1.08 }}
-        transition={{ duration: 0.6 }}
+        alt={`${monthName} calendar photo`}
+        initial={{ scale: 1.08, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Multi-layer gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/40 via-transparent to-transparent" />
+      {/* Gradient overlays — now using per-month accent color */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(to top, ${accentColor}cc 0%, ${accentColor}22 45%, transparent 100%)`,
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
 
-      {/* Subtle vignette */}
-      <div className="absolute inset-0 shadow-inner" />
-
-      {/* Month display card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="absolute bottom-3 sm:bottom-6 md:bottom-8 right-3 sm:right-6 md:right-8 bg-white/95 backdrop-blur-xl px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20"
+      {/* Month card — bottom right with accent border */}
+      <motion.div
+        key={monthName}
+        initial={{ opacity: 0, y: 16, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+        className="absolute bottom-4 sm:bottom-6 md:bottom-8 right-4 sm:right-6 md:right-8 bg-white/96 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-5 rounded-2xl sm:rounded-3xl shadow-2xl select-none"
+        style={{ borderLeft: `4px solid ${accentColor}` }}
       >
-        <motion.span 
-          className="text-[9px] sm:text-xs font-bold tracking-[2px] sm:tracking-[3px] text-blue-600 uppercase"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
+        <p
+          className="text-[9px] sm:text-[11px] font-black uppercase tracking-[3px] mb-1"
+          style={{ color: accentColor }}
         >
           {year}
-        </motion.span>
-        <motion.h1 
-          className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tighter text-gray-900 mt-1 sm:mt-2"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-        >
+        </p>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-gray-900 leading-none">
           {monthName}
-        </motion.h1>
+        </h1>
       </motion.div>
 
-      {/* Decorative wall calendar rings */}
-      <motion.div 
-        className="absolute top-3 sm:top-6 left-1/2 -translate-x-1/2 flex gap-0.5 sm:gap-1"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
+      {/* Upload controls — restored with improved styling + old descriptive labels */}
+      <motion.div
+        initial={{ opacity: 80, x: 8 }}
+        className="absolute top-3 sm:top-4 right-3 sm:right-4 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20"
       >
-        {[...Array(5)].map((_, i) => (
-          <motion.div 
-            key={i} 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: i * 0.1 }}
-            className="w-2.5 sm:w-3.5 md:w-4 h-6 sm:h-8 md:h-9 bg-gradient-to-b from-gray-900 to-gray-800 rounded-full shadow-lg flex items-center justify-center text-[8px] sm:text-[10px] md:text-[11px] text-white font-bold border border-gray-700"
-          >
-            •
-          </motion.div>
-        ))}
-      </motion.div>
+        <ControlButton
+          onClick={() => fileInputRef.current?.click()}
+          icon={<ImageIcon className="h-3.5 w-3.5" />}
+          label="Change Image"
+        />
+        <ControlButton
+          onClick={() => setShowUrlInput((v) => !v)}
+          icon={<LinkIcon className="h-3.5 w-3.5" />}
+          label="Use URL"
+          active={showUrlInput}
+        />
+        <ControlButton
+          onClick={() => {
+            onReset(monthIndex);
+            setImgKey((k) => k + 1);
+          }}
+          icon={<RotateCcw className="h-3.5 w-3.5" />}
+          label="Reset"
+          variant="outline"
+        />
 
-      {/* Upload controls - now with URL option */}
-      <motion.div 
-        className="absolute top-3 sm:top-6 right-3 sm:right-6 flex flex-col gap-1.5 sm:gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-        initial={{ x: 10, opacity: 0 }}
-        whileHover={{ x: 0, opacity: 100 }}
-      >
-        {/* File Upload Button */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button
-            size="sm"
-            variant="secondary"
-            className="shadow-xl bg-white/95 hover:bg-white text-[11px] sm:text-xs flex items-center gap-1 sm:gap-2 font-semibold px-2 sm:px-3 py-1 sm:py-1.5"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <ImageIcon className="h-3 sm:h-4 w-3 sm:w-4 bg-blue-500" />
-            <span className="hidden sm:inline text-black">Change Image</span>
-            <span className="sm:hidden">Change</span>
-          </Button>
-        </motion.div>
-
-        {/* New URL Button */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button
-            size="sm"
-            variant="secondary"
-            className="shadow-xl bg-white/95 hover:bg-white text-[11px] sm:text-xs flex items-center gap-1 sm:gap-2 font-semibold px-2 sm:px-3 py-1 sm:py-1.5"
-            onClick={() => setShowUrlInput(!showUrlInput)}
-          >
-            <LinkIcon className="h-3 sm:h-4 w-3 sm:w-4 bg-blue-500" />
-            <span className="hidden sm:inline text-black">Use URL</span>
-            <span className="sm:hidden">URL</span>
-          </Button>
-        </motion.div>
-
-        {/* Reset Button */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onReset(monthIndex)}
-            className="shadow-xl bg-white/95 hover:bg-white text-[11px] sm:text-xs flex items-center gap-1 sm:gap-2 font-semibold px-2 sm:px-3 py-1 sm:py-1.5"
-          >
-            <RotateCcw className="h-3 sm:h-4 w-3 sm:w-4" />
-            <span className="hidden sm:inline">Reset</span>
-          </Button>
-        </motion.div>
-
-        {/* URL Input - appears when Use URL is clicked */}
+        {/* URL input popover — improved with old design feel */}
         <AnimatePresence>
           {showUrlInput && (
             <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              initial={{ opacity: 0, y: -8, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className="mt-2 bg-white/95 backdrop-blur-xl p-3 rounded-2xl shadow-xl border border-white/30 flex flex-col gap-2"
+              exit={{ opacity: 0, y: -8, scale: 0.95 }}
+              transition={{ duration: 0.18 }}
+              className="mt-1 bg-white/97 backdrop-blur-xl p-3 rounded-2xl shadow-2xl border border-gray-100 flex flex-col gap-2 w-56"
             >
-              <div className="flex items-center gap-2 text-xs font-medium text-black">
-                <LinkIcon className="h-3 w-3" />
+              <p className="text-[11px] font-semibold text-gray-700 flex items-center gap-1.5">
+                <LinkIcon className="h-3 w-3 text-blue-500" />
                 Paste image URL
-              </div>
+              </p>
               <input
-                type="text"
+                type="url"
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleUrlApply()}
                 placeholder="https://picsum.photos/id/1015/1200/800"
-                className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 focus:border-blue-500 focus:outline-none text-black"
+                autoFocus
+                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:border-blue-400 focus:outline-none text-gray-800 bg-gray-50"
               />
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
+              <div className="flex gap-1.5">
+                <button
                   onClick={handleUrlApply}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex-1 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors"
                 >
                   Apply
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
+                </button>
+                <button
                   onClick={() => {
                     setShowUrlInput(false);
                     setUrlInput("");
                   }}
+                  className="px-2 py-1.5 rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
                 >
-                  <X className="h-4 w-4" />
-                </Button>
+                  <X className="h-3 w-3" />
+                </button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
 
-      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -206,5 +180,38 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
         onChange={handleFileSelect}
       />
     </div>
+  );
+}
+
+function ControlButton({
+  onClick,
+  icon,
+  label,
+  active,
+  variant = "default",
+}: {
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+  variant?: "default" | "outline";
+}) {
+  return (
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.93 }}
+      onClick={onClick}
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold shadow-lg transition-colors ${
+        active
+          ? "bg-blue-600 text-white"
+          : variant === "outline"
+          ? "bg-white/90 border border-gray-200 text-gray-600 hover:bg-white"
+          : "bg-white/90 text-gray-700 hover:bg-white"
+      }`}
+    >
+      {icon}
+      <span className="hidden sm:inline">{label}</span>
+      <span className="sm:hidden">{label === "Change Image" ? "Img" : label}</span>
+    </motion.button>
   );
 }
