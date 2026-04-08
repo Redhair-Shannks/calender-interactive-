@@ -120,13 +120,13 @@ export function NotesPanel({
     ? "bg-gray-800/60 text-gray-100 placeholder:text-gray-500 border border-gray-700/50 focus:border-blue-600/60 focus:bg-gray-800"
     : "bg-white/70 text-gray-900 placeholder:text-gray-400 border border-gray-200 focus:border-blue-400 focus:bg-white";
 
-  const tabBase = "flex-1 py-3 text-xs font-bold uppercase tracking-widest transition-colors";
+  const tabBase = "flex-1 py-3 text-sm font-bold uppercase tracking-widest transition-colors";
   const tabActive = isDark
     ? "text-blue-400 border-b-2 border-blue-400 bg-blue-900/10"
     : "text-blue-600 border-b-2 border-blue-500 bg-blue-50/60";
   const tabInactive = isDark
     ? "text-gray-500 hover:text-gray-300 border-b border-gray-800"
-    : "text-gray-400 hover:text-gray-600 border-b border-gray-200";
+    : "text-black hover:text-gray-600 border-b border-gray-200";
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -406,7 +406,7 @@ export function NotesPanel({
             {/* Memo textarea */}
             <div className="space-y-2 flex-1 flex flex-col">
               <label
-                className={`text-xs font-bold uppercase tracking-widest ${
+                className={`text-sm font-bold uppercase tracking-widest ${
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >

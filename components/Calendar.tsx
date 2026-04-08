@@ -17,15 +17,15 @@ type Direction = "next" | "prev";
 
 // ── Month default images ─────────────────────────────────────────────────────
 const MONTH_IMAGES: Record<number, string> = {
-  0:  "https://images.unsplash.com/photo-1451776965373-b4f516ac20ec?w=1600&q=80",
+  0:  "https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=1600&q=80",
   1:  "https://images.unsplash.com/photo-1477601263568-180e2c6d046e?w=1600&q=80",
   2:  "https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=1600&q=80",
-  3:  "https://images.unsplash.com/photo-1490750967868-88df5691cc9e?w=1600&q=80",
+  3:  "https://images.unsplash.com/photo-1522748906645-95d8adfd52c7?w=1600&q=80",
   4:  "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1600&q=80",
   5:  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80",
   6:  "https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=1600&q=80",
   7:  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1600&q=80",
-  8:  "https://images.unsplash.com/photo-1508779018-4f3fc9ea2e0c?w=1600&q=80",
+  8:  "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1600&q=80",
   9:  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80",
   10: "https://images.unsplash.com/photo-1457269449834-928af64c684d?w=1600&q=80",
   11: "https://images.unsplash.com/photo-1481349518771-20055b2a7b24?w=1600&q=80",
@@ -170,9 +170,28 @@ export default function InteractiveCalendar() {
 
   // ── Animation variants ─────────────────────────────────────────────────────
   const pageVariants = {
-    enter: (dir: Direction) => ({ opacity: 0, x: dir === "next" ?  40 : -40 }),
-    center:                    { opacity: 1, x: 0 },
-    exit:  (dir: Direction) => ({ opacity: 0, x: dir === "next" ? -40 :  40 }),
+    enter: (dir: Direction) => ({
+      opacity: 0,
+      rotateY: dir === "next" ? 45 : -45,
+      x: dir === "next" ? 20 : -20,
+      scale: 0.98,
+      transformOrigin: dir === "next" ? "right center" : "left center",
+    }),
+    center: {
+      opacity: 1,
+      rotateY: 0,
+      x: 0,
+      scale: 1,
+      transformOrigin: "center center",
+    },
+    exit: (dir: Direction) => ({
+      opacity: 0,
+      rotateY: dir === "next" ? -90 : 90,
+      x: dir === "next" ? -40 : 40,
+      scale: 0.95,
+      transformOrigin: dir === "next" ? "left center" : "right center",
+      zIndex: 0,
+    }),
   };
 
   const selectionHint =
@@ -377,7 +396,15 @@ export default function InteractiveCalendar() {
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    transition={{
+                      duration: 0.7,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    style={{
+                      perspective: 2000,
+                      transformStyle: "preserve-3d",
+                      position: "relative",
+                    }}
                   >
                     <CalendarGrid
                       currentMonth={currentMonth}

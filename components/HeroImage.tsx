@@ -138,8 +138,8 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
               transition={{ duration: 0.18 }}
               className="mt-1 bg-white/97 backdrop-blur-xl p-3 rounded-2xl shadow-2xl border border-gray-100 flex flex-col gap-2 w-56"
             >
-              <p className="text-[11px] font-semibold text-gray-700 flex items-center gap-1.5">
-                <LinkIcon className="h-3 w-3 text-blue-500" />
+              <p className="text-xs font-bold text-gray-700 flex items-center gap-1.5 uppercase tracking-wider">
+                <LinkIcon className="h-3.5 w-3.5 text-blue-500" />
                 Paste image URL
               </p>
               <input
@@ -149,12 +149,12 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
                 onKeyDown={(e) => e.key === "Enter" && handleUrlApply()}
                 placeholder="https://picsum.photos/id/1015/1200/800"
                 autoFocus
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:border-blue-400 focus:outline-none text-gray-800 bg-gray-50"
+                className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-200 focus:border-blue-400 focus:outline-none text-gray-800 bg-gray-50 placeholder:text-gray-400"
               />
               <div className="flex gap-1.5">
                 <button
                   onClick={handleUrlApply}
-                  className="flex-1 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors"
+                  className="flex-1 py-2 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors"
                 >
                   Apply
                 </button>
@@ -163,9 +163,9 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
                     setShowUrlInput(false);
                     setUrlInput("");
                   }}
-                  className="px-2 py-1.5 rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
+                  className="px-2.5 py-2 rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             </motion.div>
@@ -202,7 +202,7 @@ function ControlButton({
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.93 }}
       onClick={onClick}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold shadow-lg transition-colors ${
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold shadow-lg transition-colors ${
         active
           ? "bg-blue-600 text-white"
           : variant === "outline"
