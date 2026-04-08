@@ -170,29 +170,32 @@ export default function InteractiveCalendar() {
 
   // ── Animation variants ─────────────────────────────────────────────────────
   const pageVariants = {
-    enter: (dir: Direction) => ({
-      opacity: 0,
-      rotateY: dir === "next" ? 45 : -45,
-      x: dir === "next" ? 20 : -20,
-      scale: 0.98,
-      transformOrigin: dir === "next" ? "right center" : "left center",
-    }),
-    center: {
-      opacity: 1,
-      rotateY: 0,
-      x: 0,
-      scale: 1,
-      transformOrigin: "center center",
+  enter: (dir: Direction) => ({
+    rotateY: dir === "next" ? 180 : -180,
+    opacity: 0,
+    zIndex: 0,
+  }),
+
+  center: {
+    rotateY: 0,
+    opacity: 1,
+    zIndex: 1,
+    transition: {
+      duration: 0.65,
+      ease: [0.4, 0, 0.2, 1],
     },
-    exit: (dir: Direction) => ({
-      opacity: 0,
-      rotateY: dir === "next" ? -90 : 90,
-      x: dir === "next" ? -40 : 40,
-      scale: 0.95,
-      transformOrigin: dir === "next" ? "left center" : "right center",
-      zIndex: 0,
-    }),
-  };
+  },
+
+  exit: (dir: Direction) => ({
+    rotateY: dir === "next" ? -180 : 180,
+    opacity: 0.6,
+    zIndex: 2,
+    transition: {
+      duration: 0.65,
+      ease: [0.4, 0, 0.2, 1],
+    },
+  }),
+};
 
   const selectionHint =
     selectionStep === 0 ? "Click any date to start selecting"
@@ -388,7 +391,7 @@ export default function InteractiveCalendar() {
                 </AnimatePresence>
 
                 {/* Calendar grid */}
-                <AnimatePresence mode="wait" custom={direction}>
+                <AnimatePresence mode="popLayout" custom={direction}>
                   <motion.div
                     key={currentMonth.toISOString()}
                     custom={direction}
@@ -397,15 +400,25 @@ export default function InteractiveCalendar() {
                     animate="center"
                     exit="exit"
                     transition={{
-                      duration: 0.7,
-                      ease: [0.22, 1, 0.36, 1],
+                      duration: 0.65,
+                      ease: [0.4, 0, 0.2, 1], // Realistic "material" easing
                     }}
                     style={{
-                      perspective: 2000,
+                      perspective: 1400,
                       transformStyle: "preserve-3d",
-                      position: "relative",
+                      transformOrigin: "top center", // Hinged at the top
+                      backfaceVisibility: "hidden",
                     }}
+                    className="relative"
                   >
+                    {/* Darkening overlay mid-flip */}
+                    <motion.div
+                      className="absolute inset-0 bg-black/20 pointer-events-none z-10"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 0 }}
+                      exit={{ opacity: 0.4 }}
+                      transition={{ duration: 0.3 }}
+                    />
                     <CalendarGrid
                       currentMonth={currentMonth}
                       startDate={startDate}
