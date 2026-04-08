@@ -3,6 +3,18 @@
  * Comprehensive TypeScript interfaces for type safety
  */
 
+// ── Event / Note created from a date selection ──
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  location: string;     // "n/a" when not provided
+  description: string;
+  tag: string;          // PERSONAL | WORK | DREAM | EVENT | TRAVEL
+  startDate: string;    // "yyyy-MM-dd"
+  endDate: string;      // "yyyy-MM-dd"
+  createdAt: string;    // ISO timestamp
+}
+
 export interface CalendarGridProps {
   currentMonth: Date;
   startDate: Date | null;
