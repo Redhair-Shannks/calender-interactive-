@@ -194,4 +194,12 @@
   .premium-shadow {
     @apply shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),_0_10px_10px_-5px_rgba(0,0,0,0.04)];
   }
+
+  @media print {
+    .dark { color-scheme: light; }
+    .no-print { display: none !important; }
+    .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+  }
 }
+
+

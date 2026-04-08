@@ -1,10 +1,10 @@
 "use client";
 
 import { format } from "date-fns";
-import { Upload, RotateCcw, ImageIcon } from "lucide-react";
+import { Upload, RotateCcw, ImageIcon, Link as LinkIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRef } from "react";
-import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface HeroImageProps {
   currentMonth: Date;
@@ -19,6 +19,9 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
   const year = format(currentMonth, "yyyy");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -29,6 +32,15 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
       onUpload(monthIndex, dataUrl);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleUrlApply = () => {
+    const trimmed = urlInput.trim();
+    if (trimmed) {
+      onUpload(monthIndex, trimmed);   // URL is saved exactly like uploaded images
+      setUrlInput("");
+      setShowUrlInput(false);
+    }
   };
 
   return (
@@ -94,12 +106,13 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
         ))}
       </motion.div>
 
-      {/* Upload controls - enhanced */}
+      {/* Upload controls - now with URL option */}
       <motion.div 
         className="absolute top-3 sm:top-6 right-3 sm:right-6 flex flex-col gap-1.5 sm:gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
         initial={{ x: 10, opacity: 0 }}
         whileHover={{ x: 0, opacity: 100 }}
       >
+        {/* File Upload Button */}
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button
             size="sm"
@@ -107,12 +120,27 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
             className="shadow-xl bg-white/95 hover:bg-white text-[11px] sm:text-xs flex items-center gap-1 sm:gap-2 font-semibold px-2 sm:px-3 py-1 sm:py-1.5"
             onClick={() => fileInputRef.current?.click()}
           >
-            <ImageIcon className="h-3 sm:h-4 w-3 sm:w-4" />
-            <span className="hidden sm:inline">Change Image</span>
+            <ImageIcon className="h-3 sm:h-4 w-3 sm:w-4 bg-blue-500" />
+            <span className="hidden sm:inline text-black">Change Image</span>
             <span className="sm:hidden">Change</span>
           </Button>
         </motion.div>
 
+        {/* New URL Button */}
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="shadow-xl bg-white/95 hover:bg-white text-[11px] sm:text-xs flex items-center gap-1 sm:gap-2 font-semibold px-2 sm:px-3 py-1 sm:py-1.5"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+          >
+            <LinkIcon className="h-3 sm:h-4 w-3 sm:w-4 bg-blue-500" />
+            <span className="hidden sm:inline text-black">Use URL</span>
+            <span className="sm:hidden">URL</span>
+          </Button>
+        </motion.div>
+
+        {/* Reset Button */}
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button
             size="sm"
@@ -124,6 +152,49 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
             <span className="hidden sm:inline">Reset</span>
           </Button>
         </motion.div>
+
+        {/* URL Input - appears when Use URL is clicked */}
+        <AnimatePresence>
+          {showUrlInput && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              className="mt-2 bg-white/95 backdrop-blur-xl p-3 rounded-2xl shadow-xl border border-white/30 flex flex-col gap-2"
+            >
+              <div className="flex items-center gap-2 text-xs font-medium text-black">
+                <LinkIcon className="h-3 w-3" />
+                Paste image URL
+              </div>
+              <input
+                type="text"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                placeholder="https://picsum.photos/id/1015/1200/800"
+                className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 focus:border-blue-500 focus:outline-none text-black"
+              />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={handleUrlApply}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Apply
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setShowUrlInput(false);
+                    setUrlInput("");
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       {/* Hidden file input */}
