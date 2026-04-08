@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTheme } from "@/lib/theme-context";
 import { useState, useEffect, useMemo } from "react";
-import { HOLIDAYS } from "@/lib/types";
+import { CalendarEvent, HOLIDAYS } from "@/lib/types";
 
 interface CalendarGridProps {
   currentMonth: Date;
@@ -12,6 +12,8 @@ interface CalendarGridProps {
   endDate: Date | null;
   onDateClick: (day: Date) => void;
   selectionStep: 0 | 1 | 2;
+  events: CalendarEvent[];
+  memoUpdateTrigger?: number;
 }
 
 const holidayMap: Record<string, { emoji: string; name: string }> = {};
@@ -28,6 +30,8 @@ export function CalendarGrid({
   endDate,
   onDateClick,
   selectionStep,
+  events,
+  memoUpdateTrigger,
 }: CalendarGridProps) {
   const { isDark } = useTheme();
   const days = useMemo(() => generateCalendarDays(currentMonth), [currentMonth]);
@@ -67,7 +71,7 @@ export function CalendarGrid({
     }
 
     setNoteDates(dates);
-  }, [currentMonth]);
+  }, [currentMonth, events, memoUpdateTrigger]);
 
   return (
     <div className="px-4 sm:px-6 pt-1 pb-3">

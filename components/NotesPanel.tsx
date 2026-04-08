@@ -37,6 +37,7 @@ interface NotesPanelProps {
   year:          number;
   selectionStep: 0 | 1 | 2;
   onEventSaved?: (event: CalendarEvent) => void;
+  onMemoSaved?:  () => void;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -47,6 +48,7 @@ export function NotesPanel({
   year,
   selectionStep,
   onEventSaved,
+  onMemoSaved,
 }: NotesPanelProps) {
   const { isDark } = useTheme();
 
@@ -112,6 +114,7 @@ export function NotesPanel({
   const handleSaveMemo = () => {
     localStorage.setItem(memoKey(monthIndex, year), memoText);
     setMemoSaved(true);
+    onMemoSaved?.();
     setTimeout(() => setMemoSaved(false), 2500);
   };
 

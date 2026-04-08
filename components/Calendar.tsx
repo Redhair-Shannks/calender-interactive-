@@ -51,6 +51,7 @@ export default function InteractiveCalendar() {
 
   // Events / notes state
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [memoUpdateTrigger, setMemoUpdateTrigger] = useState(0);
 
   const rangeBarRef = useRef<HTMLDivElement>(null);
 
@@ -425,6 +426,8 @@ export default function InteractiveCalendar() {
                       endDate={endDate}
                       onDateClick={handleDateClick}
                       selectionStep={selectionStep}
+                      events={events}
+                      memoUpdateTrigger={memoUpdateTrigger}
                     />
                   </motion.div>
                 </AnimatePresence>
@@ -485,6 +488,7 @@ export default function InteractiveCalendar() {
               year={currentYear}
               selectionStep={selectionStep}
               onEventSaved={handleEventSaved}
+              onMemoSaved={() => setMemoUpdateTrigger((t) => t + 1)}
             />
           </div>
 
