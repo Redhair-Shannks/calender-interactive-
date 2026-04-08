@@ -72,31 +72,32 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Gradient overlays — now using per-month accent color */}
+      {/* Subtle overlays to keep text readable while preserving image */}
       <div
         className="absolute inset-0"
         style={{
-          background: `linear-gradient(to top, ${accentColor}cc 0%, ${accentColor}22 45%, transparent 100%)`,
+          background: "linear-gradient(to top, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 35%, transparent 70%)",
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent" />
 
-      {/* Month card — bottom right with accent border */}
+      {/* Month heading — top right, closer to wall-calendar style */}
       <motion.div
         key={monthName}
         initial={{ opacity: 0, y: 16, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-        className="absolute bottom-4 sm:bottom-6 md:bottom-8 right-4 sm:right-6 md:right-8 bg-white/96 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-5 rounded-2xl sm:rounded-3xl shadow-2xl select-none"
-        style={{ borderLeft: `4px solid ${accentColor}` }}
+        className="absolute top-5 sm:top-7 md:top-8 right-4 sm:right-6 md:right-8 px-1 sm:px-2 py-1 text-right select-none"
       >
         <p
-          className="text-[9px] sm:text-[11px] font-black uppercase tracking-[3px] mb-1"
-          style={{ color: accentColor }}
+          className="text-[11px] sm:text-xs font-semibold tracking-[0.12em] text-white/90"
         >
           {year}
         </p>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-gray-900 leading-none">
+        <h1
+          className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-white leading-none"
+          style={{ fontFamily: "Georgia, Times New Roman, serif" }}
+        >
           {monthName}
         </h1>
       </motion.div>
@@ -104,7 +105,7 @@ export function HeroImage({ currentMonth, imageUrl, monthIndex, onUpload, onRese
       {/* Upload controls — restored with improved styling + old descriptive labels */}
       <motion.div
         initial={{ opacity: 80, x: 8 }}
-        className="absolute top-3 sm:top-4 right-3 sm:right-4 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20"
+        className="absolute top-3 sm:top-4 left-3 sm:left-4 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20"
       >
         <ControlButton
           onClick={() => fileInputRef.current?.click()}

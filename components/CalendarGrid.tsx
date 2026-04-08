@@ -1,5 +1,5 @@
 import { format, isSameDay, isSameMonth, isToday } from "date-fns";
-import { generateCalendarDays, getWeekdayHeaders, isInRange } from "@/lib/calendar-utils";
+import { generateCalendarDays, isInRange } from "@/lib/calendar-utils";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTheme } from "@/lib/theme-context";
@@ -19,6 +19,9 @@ HOLIDAYS.forEach((h) => {
   holidayMap[`${h.month}-${h.day}`] = { emoji: h.emoji, name: h.name };
 });
 
+// Weekday headers exactly as in reference image: S M T W Th F S
+const WEEKDAY_HEADERS = ["S", "M", "T", "W", "Th", "F", "S"];
+
 export function CalendarGrid({
   currentMonth,
   startDate,
@@ -27,10 +30,7 @@ export function CalendarGrid({
   selectionStep,
 }: CalendarGridProps) {
   const { isDark } = useTheme();
-
-  // Memoize day generation so it doesn't recompute on every render
   const days = useMemo(() => generateCalendarDays(currentMonth), [currentMonth]);
-  const weekdays = useMemo(() => getWeekdayHeaders(), []);
 
   const [noteDates, setNoteDates] = useState<Set<string>>(new Set());
   const [hoveredHoliday, setHoveredHoliday] = useState<string | null>(null);
@@ -38,11 +38,11 @@ export function CalendarGrid({
   useEffect(() => {
     const dates = new Set<string>();
     const year = currentMonth.getFullYear();
-    const monthIndex = currentMonth.getMonth();
+    const monthIdx = currentMonth.getMonth();
 
-    const generalNote = localStorage.getItem(`calendar-general-notes-${year}-${monthIndex}`);
+    const generalNote = localStorage.getItem(`calendar-general-notes-${year}-${monthIdx}`);
     if (generalNote?.trim()) {
-      dates.add(`month-${year}-${monthIndex}`);
+      dates.add(`month-${year}-${monthIdx}`);
     }
 
     const rangeNotesStr = localStorage.getItem("calendar-range-notes");
@@ -70,24 +70,22 @@ export function CalendarGrid({
   }, [currentMonth]);
 
   return (
-    <div className="p-4 sm:p-6 md:p-8">
-      {/* Weekday headers */}
-      <div
-        className={`grid grid-cols-7 gap-1 sm:gap-2 text-center text-[9px] sm:text-[11px] font-bold mb-3 sm:mb-5 uppercase tracking-[0.1em] ${
-          isDark ? "text-gray-500" : "text-gray-400"
-        }`}
-      >
-        {weekdays.map((day, i) => (
-          <div key={day} className="py-1 sm:py-2">
-            {/* Show full name on larger screens, abbreviation on tiny */}
-            <span className="hidden sm:inline">{day}</span>
-            <span className="sm:hidden">{day[0]}</span>
+    <div className="px-4 sm:px-6 pt-1 pb-3">
+      {/* Weekday headers — matching reference: S M T W Th F S */}
+      <div className="grid grid-cols-7 gap-1 text-center mb-1">
+        {WEEKDAY_HEADERS.map((day, i) => (
+          <div
+            key={i}
+            className="py-1 text-xs sm:text-sm font-bold text-white drop-shadow-sm select-none"
+            style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+          >
+            {day}
           </div>
         ))}
       </div>
 
       {/* Date grid */}
-      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
         {days.map((day, index) => {
           const isCurrentMonthDay = isSameMonth(day, currentMonth);
           const isStart = !!startDate && isSameDay(day, startDate);
@@ -99,8 +97,6 @@ export function CalendarGrid({
           const dateStr = format(day, "yyyy-MM-dd");
           const hasNote = noteDates.has(dateStr);
           const isSelected = isStart || isEnd;
-
-          // Pulse the start dot while waiting for end selection
           const isAwaitingEnd = isStart && selectionStep === 1;
 
           return (
@@ -109,76 +105,66 @@ export function CalendarGrid({
                 onClick={() => isCurrentMonthDay && onDateClick(day)}
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.18, delay: Math.min(index * 0.008, 0.28) }}
+                transition={{ duration: 0.16, delay: Math.min(index * 0.006, 0.22) }}
                 whileHover={
                   isCurrentMonthDay
-                    ? { scale: 1.08, y: -2, transition: { duration: 0.15 } }
+                    ? { scale: 1.12, transition: { duration: 0.13 } }
                     : {}
                 }
-                whileTap={isCurrentMonthDay ? { scale: 0.93 } : {}}
+                whileTap={isCurrentMonthDay ? { scale: 0.9 } : {}}
                 onMouseEnter={() => holiday && setHoveredHoliday(dateKey)}
                 onMouseLeave={() => setHoveredHoliday(null)}
                 aria-label={`${format(day, "MMMM d, yyyy")}${holiday ? ` – ${holiday.name}` : ""}${isSelected ? " (selected)" : ""}`}
                 aria-pressed={isSelected}
                 className={cn(
-                  // Base — min 44px touch target
-                  "w-full h-full min-h-[36px] sm:min-h-[44px] flex flex-col items-center justify-center",
-                  "rounded-lg sm:rounded-xl text-[11px] sm:text-sm font-bold",
-                  "transition-colors duration-200 relative overflow-hidden select-none",
-                  // Not current month
-                  !isCurrentMonthDay && [
-                    isDark ? "text-gray-700 cursor-default" : "text-gray-300 cursor-default",
-                  ],
-                  // Current month base
+                  "w-full h-full min-h-[34px] sm:min-h-[40px] flex flex-col items-center justify-center",
+                  "rounded-lg text-[12px] sm:text-[15px] md:text-base font-bold",
+                  "transition-all duration-150 relative overflow-hidden select-none",
+                  // Not current month — very faded
+                  !isCurrentMonthDay && "text-white/25 cursor-default",
+                  // Current month base — white text on image
                   isCurrentMonthDay && !isSelected && !inRange && !todayDate && [
-                    isDark
-                      ? "text-gray-300 hover:bg-gray-700/70 hover:text-white"
-                      : "text-gray-700 hover:bg-gray-100",
+                    "text-white drop-shadow-md hover:bg-white/20 hover:backdrop-blur-sm",
                   ],
-                  // Today (not selected)
+                  // Today highlight
                   todayDate && !isSelected && [
-                    isDark
-                      ? "ring-2 ring-amber-500 bg-amber-900/30 text-amber-300"
-                      : "ring-2 ring-amber-400 bg-amber-50 text-amber-800",
+                    "ring-2 ring-white/90 bg-white/20 backdrop-blur-sm text-white",
                   ],
-                  // Start / End — solid blue
+                  // Selected start/end
                   isSelected && [
-                    isDark
-                      ? "bg-blue-600 text-white shadow-md shadow-blue-900/40"
-                      : "bg-blue-600 text-white shadow-md shadow-blue-200",
+                    "bg-white text-gray-900 shadow-lg",
                   ],
-                  // In-range — soft blue tint
+                  // In-range
                   inRange && [
-                    isDark
-                      ? "bg-blue-900/50 text-blue-300 rounded-none"
-                      : "bg-blue-100 text-blue-700 rounded-none",
+                    "bg-white/30 backdrop-blur-sm text-white rounded-none",
                   ],
-                  // Range edge rounding: start gets rounded left, end gets rounded right
-                  isStart && endDate && !isSameDay(startDate!, endDate) && "rounded-l-xl rounded-r-none",
-                  isEnd && startDate && !isSameDay(startDate!, endDate) && "rounded-r-xl rounded-l-none",
+                  // Range edge rounding
+                  isStart && endDate && !isSameDay(startDate!, endDate) && "rounded-l-lg rounded-r-none",
+                  isEnd && startDate && !isSameDay(startDate!, endDate) && "rounded-r-lg rounded-l-none",
                 )}
               >
-                {/* Pulse ring when awaiting second date click */}
+                {/* Pulse ring when awaiting end selection */}
                 {isAwaitingEnd && (
                   <motion.span
-                    className={`absolute inset-0 rounded-xl pointer-events-none ${
-                      isDark ? "ring-2 ring-blue-400" : "ring-2 ring-blue-500"
-                    }`}
+                    className="absolute inset-0 rounded-lg pointer-events-none ring-2 ring-white"
                     animate={{ opacity: [1, 0.3, 1] }}
                     transition={{ duration: 1.4, repeat: Infinity }}
                   />
                 )}
 
-                <span className="text-[13px] sm:text-base md:text-lg font-bold leading-none">
+                <span
+                  className="leading-none"
+                  style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+                >
                   {format(day, "d")}
                 </span>
 
-                {holiday && (
+                {holiday && isCurrentMonthDay && (
                   <motion.span
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-[11px] sm:text-sm leading-none mt-0.5"
+                    transition={{ delay: 0.08 }}
+                    className="text-[9px] sm:text-[11px] leading-none mt-0.5"
                     role="img"
                     aria-label={holiday.name}
                   >
@@ -186,12 +172,11 @@ export function CalendarGrid({
                   </motion.span>
                 )}
 
-                {/* Note dot — only show when no holiday (space constraint) */}
                 {hasNote && !holiday && isCurrentMonthDay && (
                   <span
                     className={cn(
                       "w-1 h-1 rounded-full mt-0.5",
-                      isSelected ? "bg-white/80" : isDark ? "bg-amber-400" : "bg-amber-500"
+                      isSelected ? "bg-blue-500" : "bg-amber-300"
                     )}
                   />
                 )}
@@ -203,19 +188,11 @@ export function CalendarGrid({
                   initial={{ opacity: 0, scale: 0.85, y: 8 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.85, y: 8 }}
-                  transition={{ duration: 0.13 }}
-                  className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold whitespace-nowrap z-50 pointer-events-none ${
-                    isDark
-                      ? "bg-gray-700 text-white border border-gray-600 shadow-xl"
-                      : "bg-gray-900 text-white shadow-xl"
-                  }`}
+                  transition={{ duration: 0.12 }}
+                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold whitespace-nowrap z-50 pointer-events-none bg-gray-900/95 text-white shadow-xl"
                 >
                   {holiday.emoji} {holiday.name}
-                  <div
-                    className={`absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent ${
-                      isDark ? "border-t-gray-700" : "border-t-gray-900"
-                    }`}
-                  />
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900/95" />
                 </motion.div>
               )}
             </div>
