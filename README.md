@@ -10,7 +10,7 @@
 
 ### A photorealistic, interactive WWF-themed wall calendar — where nature meets productivity.
 
-**[🌐 Live Demo →](https://wallpaper-app-jade.vercel.app)**
+**[🌐 Live Demo →](https://wallpaper-app-jade.vercel.app)** | **[🎥 Watch Video Demo →](https://drive.google.com/file/d/1xm3Tpts_ndsxU1DdoDVim45ptgSLZXbp/view?usp=sharing)**
 
 ---
 
@@ -257,6 +257,7 @@ Your app will be live in ~60 seconds at a `.vercel.app` URL.
 | Environment | URL |
 |---|---|
 | 🟢 **Production** | [wallpaper-app-jade.vercel.app](https://wallpaper-app-jade.vercel.app) |
+| 🎥 **Video Demo** | [Watch on Google Drive](https://drive.google.com/file/d/1xm3Tpts_ndsxU1DdoDVim45ptgSLZXbp/view?usp=sharing) |
 | 📊 **Vercel Dashboard** | [vercel.com/redhair-shannks-projects/wallpaper-app](https://vercel.com/redhair-shannks-projects/wallpaper-app) |
 
 ---
