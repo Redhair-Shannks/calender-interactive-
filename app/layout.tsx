@@ -14,8 +14,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Interactive Wall Calendar",
-  description: "A premium, interactive calendar component with date range selection, notes, and beautiful animations",
+  title: "WWF Wall Calendar 2026",
+  description: "Interactive WWF 2026 wall calendar — click any month to explore dates, events, and notes.",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({

@@ -1,5 +1,6 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO, isBefore, startOfDay, isSameDay } from "date-fns";
 import { CalendarEvent } from "@/lib/types";
@@ -30,18 +31,37 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December",
 ];
 
+const TEMPLATE_IMAGES = [
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf87c_1567035489088-image17.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf87b_1567035439115-image8.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf884_1567035439436-image15.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf878_1567035439111-image19.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf87a_1567035489081-image11.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf874_1567035489085-image4.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf880_1567035489086-image3.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf877_1567035489084-image5.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf873_1567035439110-image10.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf87f_1567035489087-image13.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf886_1567035439114-image7.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf885_1567035439109-image1.jpg",
+  "https://cdn.prod.website-files.com/69d6de927b06dfb1becbf86f/69d6de927b06dfb1becbf881_1567035439116-image16.jpg",
+];
+
 // ── Props ────────────────────────────────────────────────────────────────────
 interface UpcomingEventsProps {
   events: CalendarEvent[];
   onDelete: (id: string) => void;
   monthIndex: number;
   year: number;
+  isFullPage?: boolean;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
-export function UpcomingEvents({ events, onDelete, monthIndex, year }: UpcomingEventsProps) {
+export function UpcomingEvents({ events, onDelete, monthIndex, year, isFullPage = false }: UpcomingEventsProps) {
   const { isDark } = useTheme();
   const today = startOfDay(new Date());
+  
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Load monthly memo from localStorage
   const memoText =
@@ -67,7 +87,7 @@ export function UpcomingEvents({ events, onDelete, monthIndex, year }: UpcomingE
   return (
     <div className="flex flex-col gap-6">
       {/* ── Monthly Memo Preview (shown only when memo exists) ── */}
-      {memoText && (
+      {!isFullPage && memoText && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -119,31 +139,30 @@ export function UpcomingEvents({ events, onDelete, monthIndex, year }: UpcomingE
         </motion.div>
       )}
 
-      {/* ── Section header ── */}
-      <div className="flex items-end justify-between">
-        <div>
-          <p
-            className={`text-xs font-bold uppercase tracking-widest ${isDark ? "text-gray-500" : "text-gray-400"
-              }`}
-          >
-            Curation
-          </p>
-          <h2
-            className={`text-3xl font-bold tracking-tight leading-tight mt-0.5 ${isDark ? "text-white" : "text-gray-900"
-              }`}
-            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-          >
-            All Events
-          </h2>
+      {!isFullPage ? (
+        <div className="flex flex-col gap-4 mt-2">
+           <Link href="/all-events" className="w-full">
+              <button 
+                className={`w-full py-4 text-center rounded-2xl font-bold tracking-widest text-sm transition-colors shadow-sm ${
+                  isDark 
+                    ? "bg-[#2f2f2c] text-white hover:bg-[#1a1a18]" 
+                    : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                }`}
+              >
+                VIEW ALL EVENTS {sortedEvents.length > 0 && `(${sortedEvents.length})`}
+              </button>
+           </Link>
         </div>
-        {events.length > 0 && (
-          <span
-            className={`text-sm font-semibold pb-1 ${isDark ? "text-gray-500" : "text-gray-400"
-              }`}
-          >
-            {events.length} {events.length === 1 ? "entry" : "entries"}
-          </span>
-        )}
+      ) : (
+        <>
+          {/* ── Section header (Redesigned) ── */}
+      <div className="flex flex-col">
+        <h1
+          className={`text-4xl font-bold font-mono tracking-tight leading-tight ${isDark ? "text-white" : "text-gray-900"
+            }`}
+        >
+          Your Events
+        </h1>
       </div>
 
       {/* ── Empty state ── */}
@@ -165,124 +184,121 @@ export function UpcomingEvents({ events, onDelete, monthIndex, year }: UpcomingE
         </div>
       )}
 
-      {/* ── Event cards grid ── */}
+      {/* ── Event cards grid (New webflow style) ── */}
       <AnimatePresence mode="popLayout">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedEvents.map((event, i) => {
             const startDate = parseISO(event.startDate);
-            const endDate = parseISO(event.endDate);
-            const isPast = isBefore(endDate, today);
-            const isSingle = isSameDay(startDate, endDate);
-
-            const tagColor = TAG_COLORS[event.tag] || "#97a9ff";
-            const tagBg = TAG_BG[event.tag] || "rgba(151,169,255,0.15)";
-
-            const dateLabel = isSingle
-              ? format(startDate, "MMM d").toUpperCase()
-              : `${format(startDate, "MMM d").toUpperCase()} – ${format(endDate, "d")}`;
+            const isPast = isBefore(parseISO(event.endDate), today);
+            
+            const isExpanded = expandedId === event.id;
 
             return (
               <motion.div
                 key={event.id}
                 layout
-                initial={{ opacity: 0, y: 16, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                transition={{ duration: 0.28, delay: i * 0.05 }}
-                className={`relative rounded-2xl overflow-hidden group transition-colors ${isDark
-                    ? "bg-gray-900/70 border border-white/5 hover:border-white/12 shadow-xl shadow-black/30"
-                    : "bg-white border border-gray-100 hover:border-gray-200 shadow-sm"
-                  } ${isPast ? "opacity-60" : ""}`}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className={`flex flex-col overflow-hidden rounded-xl group relative ${isDark
+                    ? "bg-[#1e1e24] text-gray-200 hover:bg-[#25252d]"
+                    : "bg-[#f8f8fb] text-gray-800 hover:bg-[#f2f2f7]"
+                  } transition-colors ${isPast ? "opacity-60" : ""}`}
               >
-                {/* Tag color accent bar (left edge) */}
-                <div
-                  className="absolute left-0 inset-y-0 w-1 rounded-l-2xl"
-                  style={{ backgroundColor: tagColor }}
-                />
-
-                <div className="pl-6 pr-5 py-5 flex flex-col gap-3">
-                  {/* Top row: date pill + tag chip + past badge */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span
-                      className="px-3 py-1 rounded-full text-xs font-black text-gray-900"
-                      style={{ backgroundColor: tagColor }}
-                    >
-                      {dateLabel}
-                    </span>
-                    <span
-                      className="px-3 py-1 rounded-full text-xs font-bold"
-                      style={{ backgroundColor: tagBg, color: tagColor }}
-                    >
-                      {event.tag}
-                    </span>
-                    {isPast && (
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide ${isDark
-                            ? "bg-gray-800 text-gray-500"
-                            : "bg-gray-100 text-gray-400"
-                          }`}
-                      >
-                        Past
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Title */}
-                  <h3
-                    className={`font-bold text-lg leading-snug ${isDark ? "text-white" : "text-gray-900"
-                      }`}
-                    style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-                  >
-                    {event.title}
-                  </h3>
-
-                  {/* Location */}
-                  {event.location && event.location !== "n/a" && (
-                    <div
-                      className={`flex items-center gap-2 text-sm ${isDark ? "text-gray-400" : "text-gray-500"
-                        }`}
-                    >
-                      <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span className="truncate">{event.location}</span>
-                    </div>
-                  )}
-
-                  {/* Description snippet */}
-                  {event.description && (
-                    <p
-                      className={`text-sm leading-relaxed line-clamp-2 ${isDark ? "text-gray-400" : "text-gray-500"
-                        }`}
-                    >
-                      {event.description}
-                    </p>
-                  )}
-
-                  {/* Created at */}
-                  <div
-                    className={`flex items-center gap-1.5 text-xs mt-0.5 ${isDark ? "text-gray-600" : "text-gray-300"
-                      }`}
-                  >
-                    <Clock className="h-3 w-3" />
-                    <span>Added {format(new Date(event.createdAt), "MMM d, yyyy")}</span>
-                  </div>
-                </div>
-
                 {/* Delete button (hover reveal) */}
                 <button
-                  onClick={() => onDelete(event.id)}
-                  className={`absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all w-8 h-8 flex items-center justify-center rounded-full ${isDark
-                      ? "text-gray-500 hover:text-red-400 hover:bg-red-900/30"
-                      : "text-gray-300 hover:text-red-500 hover:bg-red-50"
+                  onClick={(e) => { e.stopPropagation(); onDelete(event.id); }}
+                  className={`absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all w-8 h-8 flex items-center justify-center rounded-full shadow-sm ${isDark
+                      ? "text-gray-400 hover:text-red-400 bg-gray-800 hover:bg-gray-700"
+                      : "text-gray-500 hover:text-red-500 bg-white hover:bg-gray-100"
                     }`}
                   aria-label="Delete event"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
+
+                {/* Top Section */}
+                <div className="p-6 flex flex-row shrink-0">
+                  {/* Left Date block */}
+                  <div className={`flex flex-col w-16 items-center justify-start pr-6 border-r border-opacity-40 ${isDark ? "border-gray-600 text-gray-300" : "border-gray-300 text-gray-600"}`}>
+                    <span className="font-mono text-sm tracking-widest font-semibold uppercase">{format(startDate, "EEE")}</span>
+                    <span className="font-mono text-3xl font-light leading-none mt-2">{format(startDate, "d")}</span>
+                  </div>
+
+                  {/* Right Info block */}
+                  <div className="pl-6 flex flex-col justify-center flex-1">
+                    <h2 className={`text-xl font-mono ${isDark ? "text-gray-100" : "text-gray-800"}`}>
+                      {event.title}
+                    </h2>
+                    <div className={`flex flex-col gap-1.5 mt-2.5 text-sm font-mono ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 opacity-70" />
+                        <span>{format(startDate, "MMMM d, yyyy")}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 opacity-70" />
+                        <span className="truncate">{event.location || "n/a"}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Image Section */}
+                <div className="w-full flex-shrink-0">
+                  <img 
+                    src={TEMPLATE_IMAGES[i % TEMPLATE_IMAGES.length]} 
+                    alt="Event Placeholder" 
+                    className="w-full h-48 sm:h-56 object-cover" 
+                  />
+                </div>
+
+                {/* Expanded Content */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-6 pt-5">
+                        <h3 className="font-mono font-bold text-2xl mb-3">
+                          {event.title}
+                        </h3>
+                        <p className={`font-mono text-base leading-relaxed whitespace-pre-wrap ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+                          {event.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Bottom Buttons */}
+                <div className={`flex flex-row mt-auto px-[2px] pb-[2px] mx-[2px] mb-[2px] gap-[2px] ${isExpanded ? "pt-[2px]" : "pt-0"}`}>
+                  <button 
+                    className="flex-1 py-3 text-center bg-[#2f2f2c] hover:bg-[#1a1a18] text-gray-200 text-sm font-mono font-semibold transition-colors rounded-bl-lg"
+                    onClick={(e) => { e.stopPropagation(); }}
+                  >
+                    RSVP
+                  </button>
+                  <button 
+                    className="flex-1 py-3 text-center bg-[#2f2f2c] hover:bg-[#1a1a18] text-gray-200 text-sm font-mono font-semibold transition-colors rounded-br-lg"
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setExpandedId(isExpanded ? null : event.id); 
+                    }}
+                  >
+                    {isExpanded ? "Show Less" : "Learn More"}
+                  </button>
+                </div>
               </motion.div>
             );
           })}
         </div>
       </AnimatePresence>
+        </>
+      )}
     </div>
   );
 }

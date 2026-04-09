@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { format, addMonths, subMonths, isSameDay, parseISO } from "date-fns";
 import { CalendarGrid } from "./CalendarGrid";
 import { NotesPanel } from "./NotesPanel";
@@ -34,9 +36,26 @@ const MONTH_IMAGES: Record<number, string> = {
 // ── Main component ────────────────────────────────────────────────────────────
 export default function InteractiveCalendar() {
   const { isDark, toggleDarkMode } = useTheme();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Initialise month from ?month= query param (0=Jan … 11=Dec)
+  const getInitialMonth = () => {
+    const m = searchParams.get("month");
+    if (m !== null) {
+      const idx = parseInt(m, 10);
+      if (!isNaN(idx) && idx >= 0 && idx <= 11) {
+        const d = new Date();
+        d.setMonth(idx);
+        d.setDate(1);
+        return d;
+      }
+    }
+    return new Date();
+  };
 
   // Calendar state
-  const [currentMonth,  setCurrentMonth]  = useState(new Date());
+  const [currentMonth,  setCurrentMonth]  = useState(getInitialMonth);
   const [startDate,     setStartDate]     = useState<Date | null>(null);
   const [endDate,       setEndDate]       = useState<Date | null>(null);
   const [direction,     setDirection]     = useState<Direction>("next");
@@ -183,7 +202,7 @@ export default function InteractiveCalendar() {
     zIndex: 1,
     transition: {
       duration: 0.65,
-      ease: [0.4, 0, 0.2, 1],
+      ease: [0.4, 0, 0.2, 1] as const,
     },
   },
 
@@ -193,7 +212,7 @@ export default function InteractiveCalendar() {
     zIndex: 2,
     transition: {
       duration: 0.65,
-      ease: [0.4, 0, 0.2, 1],
+      ease: [0.4, 0, 0.2, 1] as const,
     },
   }),
 };
@@ -206,6 +225,15 @@ export default function InteractiveCalendar() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-10">
+      {/* ── Back to landing page ── */}
+      <div className="max-w-6xl mx-auto mb-3">
+        <button
+          onClick={() => router.push("/")}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold bg-black/20 hover:bg-black/35 text-white/80 hover:text-white backdrop-blur-md transition-all"
+        >
+          ← Back to Calendar
+        </button>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -402,7 +430,7 @@ export default function InteractiveCalendar() {
                     exit="exit"
                     transition={{
                       duration: 0.65,
-                      ease: [0.4, 0, 0.2, 1], // Realistic "material" easing
+                      ease: [0.4, 0, 0.2, 1] as const, // Realistic "material" easing
                     }}
                     style={{
                       perspective: 1400,

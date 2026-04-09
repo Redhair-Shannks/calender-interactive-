@@ -1,11 +1,5 @@
-"use client";
-
-import InteractiveCalendar from "@/components/Calendar";
+import LandingPage from "@/components/LandingPage";
 
 export default function Home() {
-  return (
-    <main className="min-h-screen bg-white dark:bg-[#0c0e12]">
-      <InteractiveCalendar />
-    </main>
-  );
+  return <LandingPage />;
 }
