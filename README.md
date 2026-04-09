@@ -159,7 +159,7 @@ Click the **"Your Events"** button to open the full events dashboard at `/all-ev
 ## 📁 Project Structure
 
 ```
-wallpaper-app/
+Interactive-Calendar-/
 ├── app/
 │   ├── layout.tsx          # Root layout, fonts, viewport meta
 │   ├── page.tsx            # Landing page (/) → renders LandingPage
@@ -209,7 +209,7 @@ Make sure you have the following installed:
 git clone https://github.com/Redhair-Shannks/Interactive-Calendar-.git
 
 # 2. Navigate into the project
-cd Interactive-Calendar-/wallpaper-app
+cd Interactive-Calendar-
 
 # 3. Install dependencies
 npm install
@@ -320,7 +320,7 @@ Contributions are welcome! Here's how to get started:
 ```bash
 # Fork the repo on GitHub, then:
 git clone https://github.com/YOUR_USERNAME/Interactive-Calendar-.git
-cd Interactive-Calendar-/wallpaper-app
+cd Interactive-Calendar-
 npm install
 npm run dev
 ```
