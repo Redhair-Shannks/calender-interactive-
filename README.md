@@ -206,10 +206,10 @@ Make sure you have the following installed:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Redhair-Shannks/Interactive-Calendar-.git
+ git clone https://github.com/Redhair-Shannks/calender-interactive-
 
 # 2. Navigate into the project
-cd Interactive-Calendar-
+cd calender-interactive-
 
 # 3. Install dependencies
 npm install
